@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wallet Points Checker</title>
+    <style>
+        #container {
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 0px;
+            border-radius: 10px;
+            margin: 0px auto;
+            max-width: 600px;
+        }
+        h1 {
+            text-align: center;
+        }
+        form {
+            text-align: center;
+        }
+        label {
+            font-size: 18px;
+        }
+        textarea {
+            width: 100%;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #result {
+            margin-top: 20px;
+        }
+        .wallet-result {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <img id="logo" src="logo.png" height="100pt" width="100dp" alt="Logo">
+    <div id="container">
+        <h1>Wallet Points Checker</h1>
+        <form id="walletForm">
+            <label for="wallets">Enter Wallets (one per line):</label><br>
+            <textarea id="wallets" name="wallets" rows="15" cols="50"></textarea><br><br>
+            <button type="submit">Check Points</button>
+        </form>
+        <div id="result"></div>
+        <table id="summaryTable">
+            <thead>
+                <tr>
+                    <th>Total Points</th>
+                    <th>Locked Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="totalPoints">0</td>
+                    <td id="lockedAmount">0</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer>Version: 1.0</footer>
+
+    <script>
+        document.getElementById("walletForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+            var wallets = document.getElementById("wallets").value.trim().split("\n");
+            var resultDiv = document.getElementById("result");
+            resultDiv.innerHTML = "";
+
+            var totalPoints = 0;
+            var lockedAmount = 0;
+
+            wallets.forEach(function(wallet) {
+                fetch("https://worker.jup.ag/jup-claim-proof/CLoUDKc4Ane7HeQcPpE3YHnznRxhMimJ4MyaUqyHFzAu/" + wallet.trim())
+                .then(response => response.json())
+                .then(data => {
+                    var walletTotalPoints = data.amount;
+                    var walletLockedAmount = data.locked_amount;
+
+                    totalPoints += walletTotalPoints;
+                    lockedAmount += walletLockedAmount;
+
+                    var walletResult = document.createElement("div");
+                    walletResult.innerHTML = "<h2>Wallet: " + wallet.trim() + "</h2>" +
+                                             "<p>Total Points: " + walletTotalPoints/1000000000 + "</p>" +
+                                             "<p>Locked Amount: " + walletLockedAmount + "</p>";
+
+                    resultDiv.appendChild(walletResult);
+
+                    document.getElementById("totalPoints").textContent = totalPoints;
+                    document.getElementById("lockedAmount").textContent = lockedAmount;
+                })
+                .catch(error => {
+                    resultDiv.innerHTML += "<p>Error fetching data for wallet: " + wallet.trim() + "</p>";
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
