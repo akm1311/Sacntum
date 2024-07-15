@@ -123,7 +123,7 @@
 
                     resultDiv.appendChild(walletResult);
 
-                    document.getElementById("totalPoints").textContent = totalPoints;
+                    document.getElementById("totalPoints").textContent = totalPoints/1000000000;
                     document.getElementById("lockedAmount").textContent = lockedAmount;
                 })
                 .catch(error => {
